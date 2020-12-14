@@ -11,6 +11,7 @@
 - [What it Is](#what-it-is)
 - [What it Does](#what-it-does)
 - [How to Use it](#how-to-use-it)
+- [To do](#to-do)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -74,6 +75,11 @@ Sample output for `find-in-apt-history 'firefox:'`:
 which tells you that Firefox v71.0 was first installed in mid-December 2019 and last upgraded to v82.0
 almost exactly one year later.
 
+
+# To do
+
+* [ ] add option to avoid filtering for install/upgrade/remove
+* [ ] surround package name with unique characters to simplify anchored matches
 
 
 
