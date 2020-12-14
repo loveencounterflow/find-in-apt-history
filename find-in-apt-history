@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set +u; pattern="$1"; set -u
+
+find /var/log -name "dpkg.*" -print0 \
+  | xargs -0 zgrep -Pi '(install|remove|upgrade)\s+'"$pattern" \
+  | sed -E 's/:/ /' \
+  | sed -E 's/^(\S+)\s(\S+)\s(\S+)/\2 \3 :: /g' \
+  | sort \
+  | less -SR#5
+
+
+
