@@ -1,17 +1,18 @@
+
+
+
+# Find in Apt History
+
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Find in Apt History](#find-in-apt-history)
 - [What it Is](#what-it-is)
 - [What it Does](#what-it-does)
 - [How to Use it](#how-to-use-it)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-
-
-# Find in Apt History
 
 # What it Is
 
