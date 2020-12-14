@@ -55,6 +55,7 @@ Output:
 * Plain-text logs and `*.gz` archived logs are searched.
 * System updates as well as manually installed packages are included.
 * May use either `find-in-apt-history 'blah'` or `find-in-apt-history | grep 'blah'` to narrow down results.
+* Package names are always terminated with a `:` (colon) so that's a good way to restrict matches.
 
 Sample output for `find-in-apt-history 'firefox:'`:
 
