@@ -1,4 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
+- [Find in Apt History](#find-in-apt-history)
+- [What it Is](#what-it-is)
+- [What it Does](#what-it-does)
+- [How to Use it](#how-to-use-it)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
+
+# Find in Apt History
+
+# What it Is
 
 Short bash script that searches for installed / deleted /upgraded packages in `/var/log/dpkg*` (including
 `*.gz` archives):
@@ -16,6 +31,8 @@ find /var/log -name "dpkg.*" -print0 \
   | less -SR#5
 ```
 
+# What it Does
+
 Output:
 
 ```
@@ -29,6 +46,8 @@ Output:
 2020-10-29 20:33:19 ::  remove libboost-regex-dev:amd64 1.65.1.0ubuntu1 <none>
 2020-10-29 20:33:19 ::  remove libgtk-3-dev:amd64 3.22.30-1ubuntu4 <none>
 ```
+
+# How to Use it
 
 * Output is sorted oldest to newest.
 * Only lines containing one of `install`, `remove`, or `upgrade` are shown.
