@@ -2,12 +2,16 @@
 set -euo pipefail
 set +u; pattern="$1"; set -u
 
-find /var/log -name "dpkg.*" -print0 \
-  | xargs -0 zgrep -Pi '(install|remove|upgrade)\s+'"$pattern" \
-  | sed -E 's/:/ /' \
-  | sed -E 's/^(\S+)\s(\S+)\s(\S+)/\2 \3 :: /g' \
+sudo find /var/log -name "dpkg.*" -print0 \
+  | xargs -0 zgrep -Pi '\b(install|remove|upgrade)\b.*'"$pattern" \
+  | sed -E 's/^[^:]+://' \
+  | sed -E 's/^(\S+)\s+(\S+)\s+(\S+)\s+([^:]+):(\S+)/\1 \2 \3 :\4: (\5)/g' \
   | sort \
-  | less -SR#5
+  | grep --color=always -Pi "$pattern" \
+  | sed  '1s;^;————— ————— ————— ————— ————— ————— ————— \n;' \
+  | sed  '1s;^;Date Time Action Name Arch Previous Current\n;' \
+  | column -t -s' ' \
+  | less -SR#5 +G
 
 
 
