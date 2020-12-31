@@ -26,55 +26,57 @@ Short bash script that searches for installed / deleted /upgraded packages in `/
 set -euo pipefail
 set +u; pattern="$1"; set -u
 
-find /var/log -name "dpkg.*" -print0 \
-  | xargs -0 zgrep -Pi '(install|remove|upgrade)\s+'"$pattern" \
-  | sed -E 's/:/ /' \
-  | sed -E 's/^(\S+)\s(\S+)\s(\S+)/\2 \3 :: /g' \
+sudo find /var/log -name "dpkg.*" -print0 \
+  | xargs -0 zgrep -Pi '\b(install|remove|upgrade)\b.*'"$pattern" \
+  | sed -E 's/^[^:]+://' \
+  | sed -E 's/^(\S+)\s+(\S+)\s+(\S+)\s+([^:]+):(\S+)/\1 \2 \3 :\4: (\5)/g' \
   | sort \
-  | less -SR#5
+  | grep --color=always -Pi "$pattern" \
+  | sed  '1s;^;————— ————— ————— ————— ————— ————— ————— \n;' \
+  | sed  '1s;^;Date Time Action Name Arch Previous Current\n;' \
+  | column -t -s' ' \
+  | less -SR#5 +G
 ```
 
 # What it Does
 
-Output:
+`find-in-apt-history` searches the history of all `apt` package installations, upgrades, and removals on
+Debian-ish systems (including Ubuntu and Linux Mint). It allows to use `grep` extended patterns to find
+matches in the package name and version strings.
 
-```
-2020-10-24 10:39:57 ::  upgrade libsnmp-base:all 5.7.3+dfsg-1.8ubuntu3.3 5.7.3+dfsg-1.8ubuntu3.6
-2020-10-24 10:39:58 ::  install linux-modules-5.4.0-52-generic:amd64 <none> 5.4.0-52.57~18.04.1
-2020-10-24 10:39:58 ::  upgrade libvncserver1:amd64 0.9.11+dfsg-1ubuntu1.2 0.9.11+dfsg-1ubuntu1.3
-2020-10-24 10:40:01 ::  install linux-image-5.4.0-52-generic:amd64 <none> 5.4.0-52.57~18.04.1
-2020-10-24 10:40:02 ::  install linux-modules-extra-5.4.0-52-generic:amd64 <none> 5.4.0-52.57~18.04.1
-2020-10-24 10:40:10 ::  install linux-hwe-5.4-headers-5.4.0-52:all <none> 5.4.0-52.57~18.04.1
-2020-10-29 20:33:19 ::  remove libboost-filesystem-dev:amd64 1.65.1.0ubuntu1 <none>
-2020-10-29 20:33:19 ::  remove libboost-regex-dev:amd64 1.65.1.0ubuntu1 <none>
-2020-10-29 20:33:19 ::  remove libgtk-3-dev:amd64 3.22.30-1ubuntu4 <none>
-```
 
 # How to Use it
 
 * Output is sorted oldest to newest.
-* Only lines containing one of `install`, `remove`, or `upgrade` are shown.
+* Only lines containing one of the actions `install`, `remove`, or `upgrade` are shown.
 * Plain-text logs and `*.gz` archived logs are searched.
 * System updates as well as manually installed packages are included.
 * May use either `find-in-apt-history 'blah'` or `find-in-apt-history | grep 'blah'` to narrow down results.
-* Package names are always terminated with a `:` (colon) so that's a good way to restrict matches.
+* Package names are always surrounded with `:` (colons) so that's a good way to restrict matches.
+* Pattern matching starts *after* with the package name (after the action), so cannot match date, time, or
+  action.
+* Pattern matching uses `(z)grep` extended, case-insensitive patterns, so `foo` matches the same as `FOO`.
+* Uses `less` to page output.
+* The tool now uses `sudo` to avoid permission errors. Technically this isn't strictly necessary and may be
+  removed in a future version.
 
-Sample output for `find-in-apt-history 'firefox:'`:
+Sample output for `find-in-apt-history 'gimp'`:
 
 ```
-2019-12-13 16:28:00 ::  install firefox:amd64 <none> 71.0+linuxmint2+tricia
-2020-05-01 20:59:43 ::  upgrade firefox:amd64 71.0+linuxmint2+tricia 75.0+linuxmint2+tricia
-2020-05-15 11:48:52 ::  upgrade firefox:amd64 75.0+linuxmint2+tricia 76.0+linuxmint1+tricia
-2020-06-20 14:03:11 ::  upgrade firefox:amd64 76.0+linuxmint1+tricia 77.0.1+linuxmint1+tricia
-2020-07-08 18:47:55 ::  upgrade firefox:amd64 77.0.1+linuxmint1+tricia 78.0.1+linuxmint1+tricia
-2020-07-18 18:33:36 ::  upgrade firefox:amd64 78.0.1+linuxmint1+tricia 78.0.2+linuxmint1+tricia
-2020-10-24 10:39:26 ::  upgrade firefox:amd64 78.0.2+linuxmint1+tricia 82.0+linuxmint5+tricia
-2020-11-17 06:38:21 ::  upgrade firefox:amd64 82.0+linuxmint5+tricia 82.0.3+linuxmint1+tricia
-2020-12-14 21:18:53 ::  upgrade firefox:amd64 82.0.3+linuxmint1+tricia 83.0+linuxmint1+tricia
+Date        Time      Action   Name                    Arch     Previous           Current
+—————       —————     —————    —————                   —————    —————              —————
+2020-07-19  18:03:57  install  :gimp-data:             (all)    <none>             2.8.22-1
+2020-07-19  18:03:57  install  :libgimp2.0:            (amd64)  <none>             2.8.22-1
+2020-07-19  18:04:03  install  :gimp:                  (amd64)  <none>             2.8.22-1
+2020-12-31  16:51:18  install  :gimp-gmic:             (amd64)  <none>             1.7.9+zart-4build3
+2020-12-31  16:51:19  install  :gimp-plugin-registry:  (amd64)  <none>             7.20140602ubuntu3
+2020-12-31  20:00:45  install  :libgimp2.0-dev:        (amd64)  <none>             2.8.22-1
+2020-12-31  20:51:57  upgrade  :gimp-plugin-registry:  (amd64)  7.20140602ubuntu3  9.20180625-1ubu18.04~ppa
+2020-12-31  20:51:57  upgrade  :libgimp2.0-dev:        (amd64)  2.8.22-1           2.10.14+om-1ubu18.04.7~ppa
+2020-12-31  20:51:58  upgrade  :gimp:                  (amd64)  2.8.22-1           2.10.14+om-1ubu18.04.7~ppa
+2020-12-31  20:52:00  upgrade  :gimp-data:             (all)    2.8.22-1           2.10.14+om-1ubu18.04.7~ppa
+2020-12-31  20:52:00  upgrade  :libgimp2.0:            (amd64)  2.8.22-1           2.10.14+om-1ubu18.04.7~ppa
 ```
-
-which tells you that Firefox v71.0 was first installed in mid-December 2019 and last upgraded to v82.0
-almost exactly one year later.
 
 # Thanks
 
@@ -82,9 +84,15 @@ thx to https://www.linuxuprising.com/2019/01/how-to-show-history-of-installed.ht
 
 # To do
 
+* [X] provide tabular outpt
+* [X] improve pattern matching
+* [X] hilite matches
+* [X] jump to end of output to show most recent changes
+* [X] use `sudo` to avoid permission errors
+
 * [ ] add option to avoid filtering for install/upgrade/remove
 * [ ] surround package name with unique characters to simplify anchored matches
-
-
+* [ ] avoid hiliting when in pipe
+* [ ] do not use pager when in pipe
 
 
