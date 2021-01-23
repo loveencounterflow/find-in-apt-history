@@ -3,7 +3,7 @@ set -euo pipefail
 set +u; pattern="$1"; set -u
 
 sudo find /var/log -name "dpkg.*" -print0 \
-  | xargs -0 zgrep -Pi '\b(install|remove|upgrade)\b.*'"$pattern" \
+  | xargs -0 zgrep -Pi '\b(install|remove|upgrade)\b.*'"($pattern)" \
   | sed -E 's/^[^:]+://' \
   | sed -E 's/^(\S+)\s+(\S+)\s+(\S+)\s+([^:]+):(\S+)/\1 \2 \3 :\4: (\5)/g' \
   | sort \

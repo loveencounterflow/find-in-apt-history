@@ -89,6 +89,7 @@ thx to https://www.linuxuprising.com/2019/01/how-to-show-history-of-installed.ht
 * [X] hilite matches
 * [X] jump to end of output to show most recent changes
 * [X] use `sudo` to avoid permission errors
+* [X] put parentheses around user-supplied pattern to avoid spurious matches
 
 * [ ] add option to avoid filtering for install/upgrade/remove
 * [ ] surround package name with unique characters to simplify anchored matches
